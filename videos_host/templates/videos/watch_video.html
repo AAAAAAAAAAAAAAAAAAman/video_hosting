@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>{{ video.title }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 全屏布局 */
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* 防止滚动条 */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+            color: white;
+            text-align: center;
+        }
+
+        .video-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* 标题样式 */
+        h2 {
+            font-size: 1.4em;
+            font-weight: 500;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px 12px;
+            border-radius: 6px;
+            max-width: 90%;
+            margin: 0 auto;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 视频占满剩余空间 */
+        video {
+            flex: 1;
+            min-height: 70vh;
+            width: 100%;
+            max-width: 100%;
+            border-radius: 8px;
+            outline: none;
+            object-fit: contain; /* 保持比例，完整显示 */
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 访问量信息 */
+        .video-info {
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .views {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* 手机端优化：小屏幕下缩小标题 */
+        @media (max-width: 480px) {
+            .video-container {
+                padding: 15px 10px;
+            }
+
+            h2 {
+                font-size: 1.2em;
+                padding: 6px 10px;
+            }
+
+            .views {
+                font-size: 12px;
+                padding: 5px 10px;
+            }
+
+            video {
+                border-radius: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        <!-- 标题 -->
+        <h2>{{ video.title }}</h2>
+
+        <!-- 视频区域（自动适应） -->
+        <video controls autoplay controlsList="forward, backward" playsinline>
+            <source src="{{ video.video_url }}" type="video/mp4">
+            您的浏览器不支持视频播放。
+        </video>
+
+    </div>
+
+    <script>
+        // 可选：双击视频全屏
+        const video = document.querySelector('video');
+        video.addEventListener('dblclick', () => {
+            if (video.requestFullscreen) {
+                video.requestFullscreen();
+            }
+        });
+    </script>
+</body>
+</html>

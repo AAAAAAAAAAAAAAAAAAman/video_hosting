@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ video|yesno:"修改,新增" }}视频</title>
+    <!-- Google Fonts: Noto Sans SC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input[type="text"]:focus {
+            border-color: #3498db;
+        }
+
+        /* 文件上传样式 */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-btn {
+            display: inline-block;
+            padding: 10px 16px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .file-input-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .file-info {
+            margin-top: 6px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* 封面图预览 */
+        .thumbnail-preview {
+            margin-top: 10px;
+        }
+
+        .thumbnail-preview img {
+            max-width: 200px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        /* 提交按钮 */
+        .submit-btn {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        .submit-btn:hover {
+            background-color: #219653;
+        }
+
+        /* 返回链接 */
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #e74c3c;
+            background-color: #fdf2f2;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #f2dede;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>{{ video|yesno:"修改,新增" }}视频</h2>
+
+        {% if error %}
+            <div class="error">
+                <strong>❌ 错误：</strong>{{ error }}
+            </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- 视频标题 -->
+            <div class="form-group">
+                <label for="title">视频标题</label>
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    value="{{ video.title|default:'' }}"
+                    placeholder="请输入视频标题"
+                    required
+                />
+            </div>
+            <br>
+            <!-- 视频文件上传 -->
+            <div class="form-group">
+                <label for="video_file">上传视频文件（不能超过1G）</label>
+                <div class="file-input-wrapper">
+                    <span class="file-input-btn">📁 选择视频文件</span>
+                    <input
+                        type="file"
+                        id="video_file"
+                        name="video_file"
+                        accept="video/*"
+                        {% if not video %}required{% endif %}
+                    />
+                </div>
+                <div class="file-info">支持格式：MP4、MOV、AVI 等常见视频格式</div>
+                <!-- 显示已选文件名 -->
+                <div class="file-selection-info" id="video_file_name">未选择文件</div>
+            </div>
+            <br><br>
+           <!-- 封面图上传 -->
+            <div class="form-group">
+                <label for="thumbnail_file">上传封面图片 (JPG/PNG)</label>
+                <div class="file-input-wrapper">
+                    <span class="file-input-btn">🖼️ 选择封面图片</span>
+                    <input
+                        type="file"
+                        id="thumbnail_file"
+                        name="thumbnail_file"
+                        accept=".jpg,.jpeg,.png"
+                        {% if not video %}required{% endif %}
+                    />
+                </div>
+                <div class="file-info">建议尺寸：16:9，如 1280×720</div>
+
+                <!-- 当前封面预览 -->
+                {% if video and video.thumbnail_url %}
+                    <div class="thumbnail-preview">
+                        <p><strong>当前封面：</strong></p>
+                        <img src="{{ video.thumbnail_url }}" alt="当前封面" />
+                    </div>
+                {% endif %}
+
+                <!-- 显示已选文件名 -->
+                <div class="file-selection-info" id="thumbnail_file_name">未选择文件</div>
+            </div>
+            <br>
+            <!-- 提交按钮 -->
+            <button type="submit" class="submit-btn">
+                {{ video|yesno:'💾 保存修改,📤 上传视频' }}
+            </button>
+        </form>
+
+        <!-- 返回链接 -->
+        <a href="{% url 'admin_dashboard' %}" class="back-link">← 返回视频管理列表</a>
+    </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 视频文件
+        const videoFileInput = document.getElementById('video_file');
+        const videoFileNameDisplay = document.getElementById('video_file_name');
+
+        // 封面图片文件
+        const thumbnailFileInput = document.getElementById('thumbnail_file');
+        const thumbnailFileNameDisplay = document.getElementById('thumbnail_file_name');
+
+        // 如果页面加载时已有默认值（如修改模式），显示“已选择文件（修改中）”
+        // 但通常后端不会传文件对象，所以这里我们只处理用户选择的情况
+
+        // 监听视频文件选择
+        videoFileInput.addEventListener('change', function () {
+            if (this.files && this.files.length > 0) {
+                videoFileNameDisplay.textContent = '已选择：' + this.files[0].name;
+            } else {
+                videoFileNameDisplay.textContent = '未选择文件';
+            }
+        });
+
+        // 监听封面图片选择
+        thumbnailFileInput.addEventListener('change', function () {
+            if (this.files && this.files.length > 0) {
+                thumbnailFileNameDisplay.textContent = '已选择：' + this.files[0].name;
+            } else {
+                thumbnailFileNameDisplay.textContent = '未选择文件';
+            }
+        });
+    });
+</script>
+</body>
+</html>

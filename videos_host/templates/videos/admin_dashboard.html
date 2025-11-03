@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频管理后台</title>
+    <!-- Google Fonts: Noto Sans SC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        h2 {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .actions a, .actions button {
+            text-decoration: none;
+            padding: 8px 16px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-add:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-logout {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-logout:hover {
+            background-color: #c0392b;
+        }
+
+        .search-form {
+            margin-bottom: 25px;
+            display: flex;
+            max-width: 500px;
+        }
+
+        .search-form input[type="text"] {
+            flex: 1;
+            padding: 10px 15px;
+            font-size: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px 0 0 6px;
+            outline: none;
+        }
+
+        .search-form button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 0 6px 6px 0;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .search-form button:hover {
+            background-color: #2980b9;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .video-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .video-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-bottom: 1px solid #eee;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-info h4 {
+            margin-bottom: 8px;
+            font-size: 16px;
+            color: #2c3e50;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .video-info p {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin: 4px 0;
+        }
+
+        .video-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px; /* 按钮间距 */
+        }
+
+        .video-actions a,
+        .video-actions button {
+            text-align: center;
+            font-size: 13px;
+            padding: 6px 10px;
+            border-radius: 2px;
+            text-decoration: none;
+            display: block;
+        }
+        .btn-copy {
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            font-size: 13px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-copy:hover {
+            background-color: #8e44ad;
+        }
+        .btn-preview {
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-edit {
+            background-color: #f39c12;
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-delete {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-preview:hover { background-color: #2980b9; }
+        .btn-edit:hover { background-color: #d35400; }
+        .btn-delete:hover { background-color: #c0392b; }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #95a5a6;
+            font-size: 14px;
+        }
+
+    header h2 {
+        margin: 0 0 15px 0;
+        font-size: 1.8em;
+        font-weight: 600;
+    }
+
+    .dashboard-stats-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 20px;
+        font-size: 14px;
+    }
+
+    .dashboard-stats {
+        display: flex;
+        gap: 15px;
+    }
+
+    .stat-item {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+
+    .actions {
+        margin-left: auto; /* 推到最右边 */
+    }
+
+    .btn-add, .btn-logout {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .btn-add {
+        background: #27ae60;
+        color: white;
+    }
+
+    .btn-add:hover {
+        background: #219653;
+    }
+
+    .btn-logout {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-logout:hover {
+        background: #c0392b;
+    }
+
+    /* 小屏幕适配 */
+    @media (max-width: 600px) {
+        .dashboard-stats-actions {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .actions {
+            margin-left: 0;
+            margin-top: 10px;
+        }
+    }
+    </style>
+</head>
+<body>
+<header>
+    <h2>视频管理后台</h2>
+
+        <div class="dashboard-stats-actions">
+            <!-- 统计信息（显示在按钮前面） -->
+            <div class="dashboard-stats">
+                <span class="stat-item">
+                    📹 <strong>{{ total_video_count }}</strong> 个视频
+                </span>
+                <span class="stat-item">
+                    💾 <strong>{{ total_storage_used }}/60GB</strong>
+                </span>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="actions">
+                <a href="{% url 'admin_video_add' %}" class="btn-add">➕ 新增视频</a>
+                <a href="{% url 'admin_logout' %}" class="btn-logout">🚪 登出</a>
+            </div>
+        </div>
+    </header>
+
+<form method="get" action="{% url 'admin_dashboard' %}" class="search-form">
+    <input
+            type="text"
+            name="q"
+            placeholder="🔍 根据标题筛选视频..."
+            value="{{ search_query }}"
+    />
+    <button type="submit">搜索</button>
+</form>
+
+<div class="video-grid">
+    {% if videos %}
+    {% for video in videos %}
+    <div class="video-card">
+        {% with video_filename=video.video_url|cut:"/media/videos/" %}
+        {% if video_filename %}
+        <a href="{% url 'watch_video' video_filename=video_filename %}">
+            <img src="{{ video.thumbnail_url }}" alt="{{ video.title }}">
+        </a>
+        {% else %}
+        <div class="thumbnail-placeholder">
+            <img src="/static/images/placeholder.jpg" alt="无封面">
+        </div>
+        {% endif %}
+
+        <div class="video-info">
+            <h4>{{ video.title }}</h4>
+            <p>📅 {{ video.upload_time|date:"Y-m-d H:i" }}</p>
+            <p>👁️ 访问量: {{ video.views }}</p>
+
+            <div class="video-actions">
+                {% if video_filename %}
+                <a href="{% url 'watch_video' video_filename=video_filename %}" class="btn-preview">预览</a>
+
+                <!-- 复制链接按钮 -->
+                <button class="btn-copy" style="width: 100px"
+                        onclick="copyVideoLink(event, '{% url 'watch_video' video_filename=video_filename %}')">
+                    📋 复制链接
+                </button>
+                {% else %}
+                <span class="text-muted">❌ 无视频</span>
+                {% endif %}
+
+                <a href="{% url 'admin_video_edit' video.id %}" class="btn-edit">修改</a>
+                <button class="btn-delete" onclick="deleteVideo({{ video.id }})">删除</button>
+            </div>
+        </div>
+        {% endwith %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <p>📭 没有找到视频。请添加一个新视频。</p>
+    </div>
+    {% endif %}
+</div>
+
+<footer>
+    &copy; 2025 视频管理系统. 所有视频由管理员上传.
+</footer>
+
+<script>
+    function copyVideoLink(event, relativeUrl) {
+        event.stopPropagation(); // 防止触发卡片跳转
+
+        // 拼出完整 URL
+        const fullUrl = window.location.origin + relativeUrl;
+
+        navigator.clipboard.writeText(fullUrl)
+            .then(() => {
+                alert('✅ 链接已复制到剪贴板：\n' + fullUrl);
+            })
+            .catch(err => {
+                console.error('剪贴板复制失败:', err);
+                alert('❌ 复制失败，请手动复制：\n' + fullUrl);
+            });
+        }
+    function deleteVideo(videoId) {
+        if (confirm('⚠️ 确定要删除这个视频吗？此操作不可恢复！')) {
+            fetch(`{% url 'admin_delete_video' 99999999 %}`.replace('99999999', videoId), {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('✅ 视频已成功删除');
+                    window.location.reload();
+                } else {
+                    alert('❌ 删除失败，请重试');
+                }
+            })
+            .catch(error => {
+                console.error('删除请求出错:', error);
+                alert('❌ 网络错误，删除失败');
+            });
+        }
+    }
+</script>
+</body>
+</html>
