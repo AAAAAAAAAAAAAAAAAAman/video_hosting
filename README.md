@@ -11,3 +11,14 @@ Password: root000（自行修改）
 Password (again): root000
 5. 在根目录下打开cmd界面，输入指令“python manage.py runserver”
 6. 打开浏览器，进入http://127.0.0.1:8000/videohosting/admin-login/，输入步骤四创建的管理员账号即可使用
+
+
+## 截图
+登录
+![image](img/1.png)
+后台管理页面
+![image](img/2.png)
+新增、修改视频界面
+![image](img/3.png)
+播放界面
+![image](img/4.png)
